@@ -13,27 +13,14 @@ class Database {
         if (!db.objectStoreNames.contains(this.table)) {
           db.createObjectStore(this.table, {keyPath: 'uuid', autoIncrement: true});
         }
-      }
+      };
       request.onsuccess = (event) => {
         resolve(event.target.result);
-      }
+      };
       request.onerror = (event) => {
         reject(event.target.error);
-      }
-    })
-  }
-  verify(uuid) {
-    const request = indexedDB.open(this.db,this.version);
-    const transaction = request.transaction(this.table,'readonly');
-    const store = transaction.objectStore(this.table);
-    const result = store.get(uuid);
-    result.onsuccess = (ev) => {
-      const exist = ev.target.result;
-      return exists!==undefined?true:false;
-    }
-    result.onerror = () => {
-      return false;
-    }
+      };
+    });
   }
   
   addData (data) {
@@ -46,16 +33,16 @@ class Database {
           ...data,
           create_at: new Date().toLocaleString(),
           update_at: new Date().toLocaleString()
-        }
+        };
         const request = store.add(data);
         request.onsuccess = (ev) => {
           resolve ({status: 'ok',message: 'Data added successfully'});
-        }
+        };
         request.onerror = (ev) => {
           reject ({status: 'error',message: ev.target.error.message});
-        }
-      })
-    })
+        };
+      });
+    });
   }
   
   getData (uuid) {
@@ -68,12 +55,12 @@ class Database {
         result.onsuccess = (event)=> {
           const data = event.target.result;
           resolve(data!==undefined?data:false);
-        }
+        };
         result.onerror = (event)=>{
           reject({"status": 'error',message: event.target.error.message});
-        }
-      })
-    })
+        };
+      });
+    });
   }
   
   getAllData () {
@@ -86,12 +73,12 @@ class Database {
         request.onsuccess = (ev) => {
           const all_data = ev.target.result;
           resolve(all_data.length > 0?all_data:false);
-        }
+        };
         request.onerror = (ev) => {
           reject({status: 'error',message: ev.target.error.message});
-        }
-      })
-    })
+        };
+      });
+    });
   }
   
 updateData(uuid, data) {
@@ -142,12 +129,45 @@ updateData(uuid, data) {
         const request = store.delete(uuid);
         request.onsuccess = () => {
           resolve({status:'ok',message:'Data deleted successfully'});
-        }
+        };
         request.onerror = (ev) => {
           reject({status:'error',message:ev.target.error.message});
-        }
-      })
-    })
+        };
+      });
+    });
+  }
+  
+  tableFilter(search,table) {
+    table = typeof(table)!=='object'?document.querySelectorAll(table):[table];
+    table.forEach((elm)=>{
+      const row = elm.getElementsByTagName('tr');
+      for (let i=1; i<row.length;i++){
+        let text = row[i].innerText.toUpperCase();
+        row[i].style.display=text.includes(search.toUpperCase())?'':'none';
+      }
+    });
+  }
+  
+  filterList(text,list) {
+    list = typeof(list)!=='object'?document.querySelectorAll(list):[list];
+    list.forEach((elm)=>{
+      const li = elm.getElementsByTagName('li');
+      for(let i=0; i<li.length; i++) {
+        let filter = text.toUpperCase();
+        let textContent = li[i].innerText.toUpperCase();
+        li[i].style.display=textContent.includes(filter)?'':'none';
+      }
+    });
+  }
+  
+  filter(text,tag) {
+    tag = typeof(tag)!=='object'?document.querySelectorAll(tag):[tag];
+    tag.forEach((elm)=>{
+      let textContent = elm.innerText.toUpperCase();
+      text = text.toUpperCase();
+      elm.style.display=textContent.includes(text)?'':'none';
+    });
   }
   
 }
+
