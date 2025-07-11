@@ -1,13 +1,15 @@
 class Database {
   constructor(obj = {}) {
-    this.db = obj.db || "SAMIM";
+    this.name = obj.name || "SAMIM";
     this.version = obj.version || 1;
     this.table = obj.table || 'Table1';
   }
-  
+  delete() {
+    indexedDB.deleteDatabase(this.name);
+  }
   openDatabase () {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.db,this.version);
+      const request = indexedDB.open(this.name,this.version);
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
         if (!db.objectStoreNames.contains(this.table)) {
